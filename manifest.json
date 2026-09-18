@@ -7,9 +7,10 @@
   "theme_color": "#00FF85",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/330/330541.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhtczClpR3bTxaUBk1GtNe4kCmJQfI4mUh12epj8hAyW9BlgVQ11XdDhonpGrks-S9db7yDGJoZkzb8CNr5FNofxZ0tjo9T-zS-EB1MUeqGQQ_0BNTghQYsbbNFmpXqjE-a9497bO-Jkz51dKNOW7_HhL1_9zKjJ0bwNFQLzjDzROS8Rg8Qa_TvNR6VdVw/s1080/612137951_17848296033657536_1062388594730238053_n.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
