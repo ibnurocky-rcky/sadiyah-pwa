@@ -368,6 +368,8 @@ function runServer(fnName, args, onSuccess, onError){
     payload.dateStr = args[1];
   }
 
+  const cacheKey = 'sadiyah_cache_' + fnName + '_' + JSON.stringify(args);
+
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({ action: fnName, payload: payload }),
@@ -376,6 +378,7 @@ function runServer(fnName, args, onSuccess, onError){
   .then(function(res) { return res.json(); })
   .then(function(json) {
     if (json.ok) {
+      try { localStorage.setItem(cacheKey, JSON.stringify(json.data)); } catch(e){}
       if (onSuccess) onSuccess(json.data);
     } else {
       if (onError) onError(json.message);
@@ -383,6 +386,15 @@ function runServer(fnName, args, onSuccess, onError){
     }
   })
   .catch(function(err) {
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (onSuccess) onSuccess(parsed);
+        app.showToast('Mode Offline (Data Lokal)', 'info');
+        return;
+      } catch(e){}
+    }
     if (onError) onError(err);
     else app.showToast('Koneksi terganggu / offline.', 'warning');
   });
@@ -412,7 +424,7 @@ const app = {
       pinInput += num;
       this.updatePinDots();
       if (pinInput.length === 6) {
-        if (pinInput === '123456') { // PIN default aman
+        if (pinInput === '123456') {
           sessionStorage.setItem('sadiyah_auth', 'true');
           document.getElementById('modal-pin').classList.add('hidden');
           this.showToast('Akses Diberikan!', 'success');
@@ -846,7 +858,6 @@ const app = {
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
       const cards = [];
       for(let i=1; i<lines.length; i++){
-        // Simple CSV parser supporting quotes
         const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
         if(row.length >= 3){
           cards.push({
@@ -970,9 +981,13 @@ const app = {
     quiz.answered = true;
     if(quality >= 3) quiz.score++;
     const q = quiz.queue[quiz.index];
-    runServer('recordAttempt', [q.darsId || currentDarsId, q.id, quality, quiz.mode], () => {
-      this.nextQuizQuestion();
-    });
+    
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'recordAttempt', payload: { darsId: q.darsId || currentDarsId, cardId: q.id, quality: quality, mode: quiz.mode } }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    }).catch(function(){});
+    this.nextQuizQuestion();
   },
 
   answerPG(selectedIndex, correctIndex, btn){
@@ -988,9 +1003,14 @@ const app = {
     const isCorrect = (selectedIndex === Number(correctIndex));
     if(isCorrect) quiz.score++;
     const q = quiz.queue[quiz.index];
-    runServer('recordAttempt', [q.darsId || currentDarsId, q.id, isCorrect ? 5 : 1, quiz.mode], () => {
-      document.getElementById('quiz-next-btn').classList.remove('hidden');
-    });
+    
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'recordAttempt', payload: { darsId: q.darsId || currentDarsId, cardId: q.id, quality: isCorrect ? 5 : 1, mode: quiz.mode } }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    }).catch(function(){});
+
+    document.getElementById('quiz-next-btn').classList.remove('hidden');
   },
 
   submitIsian(correctAnswer){
@@ -1004,9 +1024,14 @@ const app = {
     quiz.answered = true;
     if(isCorrect) quiz.score++;
     const q = quiz.queue[quiz.index];
-    runServer('recordAttempt', [q.darsId || currentDarsId, q.id, isCorrect ? 5 : 1, quiz.mode], () => {
-      this.nextQuizQuestion();
-    });
+    
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'recordAttempt', payload: { darsId: q.darsId || currentDarsId, cardId: q.id, quality: isCorrect ? 5 : 1, mode: quiz.mode } }),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    }).catch(function(){});
+
+    this.nextQuizQuestion();
   },
 
   nextQuizQuestion(){
@@ -1024,7 +1049,7 @@ const app = {
     document.getElementById('summary-accuracy').textContent = pct + '% benar';
     document.getElementById('summary-emoji').textContent = pct >= 80 ? '🏆' : (pct >= 50 ? '🎉' : '💪');
     document.getElementById('modal-summary').classList.remove('hidden');
-    this.init(); // Refresh dashboard stats
+    this.init();
   },
 
   closeQuizConfirm(){
