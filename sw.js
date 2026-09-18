@@ -1,6 +1,5 @@
 const CACHE_NAME = 'sadiyah-pwa-v2';
 const ASSETS = [
-  './',
   './index.html',
   './manifest.json',
   'https://cdn.tailwindcss.com',
@@ -31,16 +30,43 @@ self.addEventListener('activate', function(e) {
 });
 
 self.addEventListener('fetch', function(e) {
-  if (e.request.url.includes('script.google.com')) {
+  const url = e.request.url;
+
+  // Jika request ke Google Apps Script (Backend Database)
+  if (url.includes('script.google.com')) {
+    e.respondUrl = e.request;
     e.respondWith(
-      fetch(e.request).catch(function() {
-        return new Response(JSON.stringify({ ok: false, message: 'Offline mode: Tidak dapat terhubung ke server.' }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      })
+      fetch(e.request)
+        .then(function(response) {
+          // Clone respons dan simpan ke Cache API agar bisa dibaca saat offline
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(e.request, clone);
+            });
+          }
+          return response;
+        })
+        .catch(function() {
+          // Jika offline, ambil data terakhir dari cache
+          return caches.match(e.request).then(function(cachedResponse) {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Fallback jika belum pernah dicache sama sekali
+            return new Response(JSON.stringify({ 
+              ok: false, 
+              message: 'Mode Offline: Menggunakan data lokal terakhir.' 
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          });
+        })
     );
     return;
   }
+
+  // Untuk aset statis (HTML, CSS, CDN)
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       return cached || fetch(e.request);
