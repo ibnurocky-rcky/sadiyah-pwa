@@ -1,16 +1,24 @@
 {
   "name": "Sa'diyah Quiz PWA",
   "short_name": "SadiyahQuiz",
+  "description": "Aplikasi Kuis Interaktif Sa'diyah untuk latihan dan pembelajaran.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#F4F4F0",
   "theme_color": "#00FF85",
   "icons": [
     {
       "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhtczClpR3bTxaUBk1GtNe4kCmJQfI4mUh12epj8hAyW9BlgVQ11XdDhonpGrks-S9db7yDGJoZkzb8CNr5FNofxZ0tjo9T-zS-EB1MUeqGQQ_0BNTghQYsbbNFmpXqjE-a9497bO-Jkz51dKNOW7_HhL1_9zKjJ0bwNFQLzjDzROS8Rg8Qa_TvNR6VdVw/s1080/612137951_17848296033657536_1062388594730238053_n.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhtczClpR3bTxaUBk1GtNe4kCmJQfI4mUh12epj8hAyW9BlgVQ11XdDhonpGrks-S9db7yDGJoZkzb8CNr5FNofxZ0tjo9T-zS-EB1MUeqGQQ_0BNTghQYsbbNFmpXqjE-a9497bO-Jkz51dKNOW7_HhL1_9zKjJ0bwNFQLzjDzROS8Rg8Qa_TvNR6VdVw/s1080/612137951_17848296033657536_1062388594730238053_n.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
