@@ -1,7 +1,6 @@
 {
-  "name": "Sa'diyah Quiz PWA",
-  "short_name": "SadiyahQuiz",
-  "description": "Aplikasi Kuis Interaktif Sa'diyah",
+  "name": "Sa'diyah Quiz",
+  "short_name": "Sadiyah",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -9,16 +8,16 @@
   "theme_color": "#00FF85",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/google/material-design-icons/master/png/action/extension/1x_web/ic_extension_black_48dp.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKlf3fsFCUOawLqtC58ckENJ5dQkF6g1KuzY1iAbjplFxaYk4ld5H7bvBJiC8n51cKOLz9t53Z0lb2anBVCGt2qjZfHgxSPoVdguBpovra9qtvtjlruU_b8T9jYGAFEfTDkjLQylRBLWQsIPJdmaALZ4otKrGJqXU64tZlhCS-jA7Ippu4bxOatMRhIDA/s1080/612137951_17848296033657536_1062388594730238053_n.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/google/material-design-icons/master/png/action/extension/2x_web/ic_extension_black_48dp.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKlf3fsFCUOawLqtC58ckENJ5dQkF6g1KuzY1iAbjplFxaYk4ld5H7bvBJiC8n51cKOLz9t53Z0lb2anBVCGt2qjZfHgxSPoVdguBpovra9qtvtjlruU_b8T9jYGAFEfTDkjLQylRBLWQsIPJdmaALZ4otKrGJqXU64tZlhCS-jA7Ippu4bxOatMRhIDA/s1080/612137951_17848296033657536_1062388594730238053_n.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
