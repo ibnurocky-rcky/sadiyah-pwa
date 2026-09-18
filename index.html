@@ -86,6 +86,9 @@ body{font-family:'Public Sans',sans-serif;background:var(--color-bg);color:#000;
 .pg-option:disabled{cursor:default;}
 
 .type-badge{font-size:10px;font-weight:900;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:2px solid #000;display:inline-block;}
+
+.list-item-enter{animation:listIn .2s ease-out both;}
+@keyframes listIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:translateX(0);}}
 </style>
 </head>
 <body onload="app.init()">
@@ -305,6 +308,42 @@ body{font-family:'Public Sans',sans-serif;background:var(--color-bg);color:#000;
   </div>
 </div>
 
+<div id="modal-quick-edit-card" class="modal-overlay hidden" style="z-index: 350;">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-body">
+      <div class="flex items-center justify-between mb-3 border-b-2 border-black pb-2">
+        <h3 class="font-black text-base uppercase">Edit Soal Sesi Ini</h3>
+        <button class="neo-button px-2 py-0.5 text-xs bg-white" onclick="app.closeModal('modal-quick-edit-card')"><i class="fas fa-xmark"></i></button>
+      </div>
+      <input type="hidden" id="quick-edit-id">
+      <input type="hidden" id="quick-edit-type">
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Pertanyaan</label>
+          <textarea class="neo-textarea" id="quick-edit-question" rows="3"></textarea>
+        </div>
+        <div id="quick-edit-wrap-answer">
+          <label class="text-[11px] font-black uppercase opacity-60">Jawaban</label>
+          <textarea class="neo-textarea" id="quick-edit-answer" rows="2"></textarea>
+        </div>
+        <div id="quick-edit-wrap-pg" class="hidden">
+          <label class="text-[11px] font-black uppercase opacity-60">Opsi Jawaban</label>
+          <div class="flex flex-col gap-2 mt-1">
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="0"><input class="neo-input quick-pg-opt" data-idx="0" placeholder="Opsi A"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="1"><input class="neo-input quick-pg-opt" data-idx="1" placeholder="Opsi B"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="2"><input class="neo-input quick-pg-opt" data-idx="2" placeholder="Opsi C"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="3"><input class="neo-input quick-pg-opt" data-idx="3" placeholder="Opsi D"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button class="neo-button flex-1 py-2.5 bg-white text-xs" onclick="app.closeModal('modal-quick-edit-card')">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-green text-xs" id="quick-edit-save-btn" onclick="app.saveQuickEditCard(this)">SIMPAN PERUBAHAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="modal-settings" class="modal-overlay hidden">
   <div class="modal-box" style="max-width:400px;">
     <div class="modal-body">
@@ -337,6 +376,16 @@ let currentCards = [];
 let quiz = { queue:[], index:0, score:0, mode:'per_dars', answered:false, selected:null };
 let countdownTimer = null;
 let pinInput = '';
+
+function getQueryParamDars() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var d = params.get('dars');
+    if (d) return d;
+  } catch (e) {}
+  return '';
+}
+let INITIAL_DARS_ID = getQueryParamDars();
 
 function runServer(fnName, args, onSuccess, onError){
   args = args || [];
@@ -413,6 +462,10 @@ const app = {
       this.startCountdown();
       document.getElementById('settings-name').value = DB.settings.targetName || '';
       if (DB.settings.targetDate) document.getElementById('settings-date').value = this.toDatetimeLocal(DB.settings.targetDate);
+
+      if (INITIAL_DARS_ID) {
+        this.tryOpenDarsDirectly(INITIAL_DARS_ID);
+      }
     }, (err) => {
       this.showToast('Gagal memuat data: ' + (err && err.message ? err.message : err), 'error');
       document.getElementById('kitab-grid').innerHTML = '<p class="text-sm font-bold opacity-60 col-span-2 text-center py-8">Gagal memuat. <button class="underline text-[var(--color-blue)]" onclick="app.init()">Coba lagi</button></p>';
@@ -617,11 +670,31 @@ const app = {
           <h3 class="font-black text-base mb-2">${d.judul}</h3>
           <p class="text-xs font-bold opacity-70">${d.totalCards} Soal • Dikuasai: ${d.masteredCount}</p>
         </div>
-        <div class="flex gap-2 mt-4 pt-3 border-t-2 border-black">
+        <div class="flex gap-2 mt-4 pt-3 border-t-2 border-black flex-wrap">
           <button class="neo-button flex-1 py-1.5 text-xs bg-neo-green" onclick="app.startQuiz('${d.id}')">MULAI</button>
-          <button class="neo-button px-3 py-1.5 text-xs bg-white" onclick="app.openManage('${d.id}')"><i class="fas fa-gear"></i></button>
+          <button class="neo-button px-2.5 py-1.5 text-xs bg-white" title="Buka di Tab Baru" onclick="app.openDarsInNewTab('${d.id}')"><i class="fas fa-arrow-up-right-from-square"></i></button>
+          <button class="neo-button px-2.5 py-1.5 text-xs bg-white" title="Salin Tautan" onclick="app.copyLinkDars('${d.id}')"><i class="fas fa-link"></i></button>
+          <button class="neo-button px-2.5 py-1.5 text-xs bg-white" title="Kelola Soal" onclick="app.openManage('${d.id}')"><i class="fas fa-gear"></i></button>
         </div>
       </div>`).join('');
+  },
+
+  openDarsInNewTab(darsId){
+    const baseUrl = window.location.href.split('?')[0];
+    window.open(baseUrl + '?dars=' + encodeURIComponent(darsId), '_blank');
+  },
+
+  copyLinkDars(darsId){
+    const baseUrl = window.location.href.split('?')[0];
+    const link = baseUrl + '?dars=' + encodeURIComponent(darsId);
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(() => this.showToast('Tautan dars disalin!', 'success'));
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = link; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+      this.showToast('Tautan dars disalin!', 'success');
+    }
   },
 
   showDarsForm(darsId){
@@ -704,7 +777,7 @@ const app = {
         <div style="flex:1; min-width:0;">
           <div class="flex items-center gap-2 mb-1">
             <span class="type-badge bg-neo-blue">${c.type}</span>
-            <span class="text-[10px] font-bold opacity-60">Box ${c.box}</span>
+            <span class="text-[10px] font-bold opacity-60">Box ${c.box || 1}</span>
           </div>
           <p class="font-bold text-sm truncate">${c.question}</p>
         </div>
@@ -883,6 +956,7 @@ const app = {
   },
 
   startQuiz(darsId){
+    currentDarsId = darsId;
     runServer('getQuizQueue', [[darsId], 'per_dars', false], (queue) => {
       if(!queue || !queue.length){
         this.showToast('Belum ada soal di dars ini!', 'warning');
@@ -921,10 +995,19 @@ const app = {
     quiz.answered = false;
     quiz.selected = null;
 
+    const cardTools = `
+      <div class="flex items-center justify-between mb-3 text-xs font-bold border-b-2 border-black pb-2">
+        <span class="opacity-70">Tipe: ${q.type}</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="app.openQuickEditCardModal()" class="neo-button px-2.5 py-1 text-[11px] bg-neo-yellow"><i class="fas fa-pen mr-1"></i> Edit</button>
+          <button type="button" onclick="app.confirmDeleteCurrentQuizCard()" class="neo-button px-2.5 py-1 text-[11px] bg-neo-red text-white"><i class="fas fa-trash mr-1"></i> Hapus</button>
+        </div>
+      </div>`;
+
     const body = document.getElementById('quiz-body');
 
     if (q.type === 'flashcard') {
-      body.innerHTML = `
+      body.innerHTML = cardTools + `
         <p class="text-xs font-black uppercase opacity-60 mb-2">Flashcard • Ketuk kartu untuk membalik</p>
         <div class="flip-card mb-5" id="flip-card-el" onclick="app.flipFlashcard()">
           <div class="flip-card-inner">
@@ -943,7 +1026,7 @@ const app = {
     } else if (q.type === 'pg') {
       let opts = [];
       try { opts = JSON.parse(q.options || '[]'); } catch(e){}
-      body.innerHTML = `
+      body.innerHTML = cardTools + `
         <p class="text-xs font-black uppercase opacity-60 mb-2">Pilihan Ganda</p>
         <p class="font-black text-lg mb-4">${q.question}</p>
         <div class="flex flex-col gap-2.5 mb-5" id="pg-opts-list">
@@ -951,7 +1034,7 @@ const app = {
         </div>
         <button class="neo-button w-full py-3 bg-neo-green hidden" id="quiz-next-btn" onclick="app.nextQuizQuestion()">LANJUT →</button>`;
     } else if (q.type === 'isian') {
-      body.innerHTML = `
+      body.innerHTML = cardTools + `
         <p class="text-xs font-black uppercase opacity-60 mb-2">Soal Isian Singkat</p>
         <p class="font-black text-lg mb-4">${q.question}</p>
         <textarea class="neo-textarea mb-4" id="isian-user-ans" rows="3" placeholder="Tulis jawabanmu di sini..."></textarea>
@@ -1043,6 +1126,101 @@ const app = {
     }
   },
 
+  openQuickEditCardModal(){
+    if (!quiz.queue || !quiz.queue[quiz.index]) return;
+    var card = quiz.queue[quiz.index];
+    document.getElementById('quick-edit-id').value = card.id;
+    document.getElementById('quick-edit-type').value = card.type;
+    document.getElementById('quick-edit-question').value = card.question;
+
+    var wrapAnswer = document.getElementById('quick-edit-wrap-answer');
+    var wrapPg = document.getElementById('quick-edit-wrap-pg');
+
+    if (card.type === 'pg'){
+      wrapAnswer.classList.add('hidden');
+      wrapPg.classList.remove('hidden');
+      var opts = card.options || [];
+      for (var i = 0; i < 4; i++){
+        var input = document.querySelector('.quick-pg-opt[data-idx="' + i + '"]');
+        if (input) input.value = opts[i] || '';
+      }
+      var radio = document.querySelector('input[name="quick-pg-correct"][value="' + card.answer + '"]');
+      if (radio) radio.checked = true;
+    } else {
+      wrapAnswer.classList.remove('hidden');
+      wrapPg.classList.add('hidden');
+      document.getElementById('quick-edit-answer').value = card.answer;
+    }
+    this.openModal('modal-quick-edit-card');
+  },
+
+  saveQuickEditCard(btn){
+    if (!quiz.queue || !quiz.queue[quiz.index]) return;
+    var currentCard = quiz.queue[quiz.index];
+    var id = document.getElementById('quick-edit-id').value;
+    var type = document.getElementById('quick-edit-type').value;
+    var question = document.getElementById('quick-edit-question').value.trim();
+    if (!question){ this.showToast('Pertanyaan tidak boleh kosong.', 'error'); return; }
+
+    var answer = '';
+    var options = null;
+    if (type === 'pg'){
+      options = Array.from(document.querySelectorAll('.quick-pg-opt')).map(function(i){ return i.value.trim(); });
+      var checkedRadio = document.querySelector('input[name="quick-pg-correct"]:checked');
+      answer = checkedRadio ? checkedRadio.value : '0';
+    } else {
+      answer = document.getElementById('quick-edit-answer').value.trim();
+    }
+
+    const lBtn = this.lock(btn);
+    var updatedCard = { id: id, type: type, question: question, answer: answer, options: options };
+
+    runServer('updateCard', [currentCard.darsId || currentDarsId, updatedCard], () => {
+      this.unlock(lBtn);
+      this.showToast('Kartu diperbarui.', 'success');
+      currentCard.question = question;
+      currentCard.answer = answer;
+      currentCard.options = options;
+      this.closeModal('modal-quick-edit-card');
+      this.renderQuizQuestion();
+    }, (err) => {
+      this.unlock(lBtn);
+      this.showToast('Gagal update.', 'error');
+    });
+  },
+
+  confirmDeleteCurrentQuizCard(){
+    if (!quiz.queue || !quiz.queue[quiz.index]) return;
+    var card = quiz.queue[quiz.index];
+    this.showConfirm(
+      'Hapus Kartu Ini?',
+      'Kartu akan dihapus.',
+      'HAPUS',
+      true,
+      () => {
+        runServer('deleteCard', [card.darsId || currentDarsId, card.id], () => {
+          this.showToast('Kartu dihapus.', 'success');
+          quiz.queue.splice(quiz.index, 1);
+          if (quiz.index >= quiz.queue.length){
+            if (quiz.queue.length > 0){
+              quiz.index = 0;
+              this.renderQuizQuestion();
+            } else {
+              this.finishSession();
+            }
+          } else {
+            this.renderQuizQuestion();
+          }
+          this.init();
+        });
+      }
+    );
+  },
+
+  finishSession(){
+    this.showQuizSummary();
+  },
+
   showQuizSummary(){
     document.getElementById('summary-score').textContent = quiz.score + '/' + quiz.queue.length;
     const pct = Math.round((quiz.score / quiz.queue.length) * 100);
@@ -1064,7 +1242,7 @@ const app = {
   },
 
   openSettings(){
-    document.getElementById('modal-settings').classList.remove('hidden');
+    this.openModal('modal-settings');
   },
 
   saveSettingsForm(btn){
@@ -1084,15 +1262,27 @@ const app = {
     });
   },
 
-  closeModal(modalId){
-    document.getElementById(modalId).classList.add('hidden');
+  openModal(id){ document.getElementById(id).classList.remove('hidden'); },
+  closeModal(id){ document.getElementById(id).classList.add('hidden'); },
+
+  showConfirm(title, message, confirmLabel, isDanger, onConfirm){
+    document.getElementById('confirm-modal-title').textContent = title || 'Konfirmasi';
+    document.getElementById('confirm-modal-msg').textContent = message;
+    const btn = document.getElementById('confirm-modal-action-btn');
+    btn.textContent = confirmLabel || 'YA, LANJUTKAN';
+    btn.className = 'neo-button flex-1 py-2.5 text-xs ' + (isDanger ? 'bg-neo-red' : 'bg-neo-green');
+    btn.onclick = () => {
+      this.closeModal('modal-confirm');
+      if (typeof onConfirm === 'function') onConfirm();
+    };
+    this.openModal('modal-confirm');
   },
 
   tryOpenDarsDirectly(darsId){
     const d = DB.darsList.find(x => x.id === darsId);
     if(d){
       if(d.kitab) currentKitab = d.kitab;
-      this.renderPertemuanList(d.kitab || 'Tanpa Kitab');
+      this.startQuiz(d.id);
     }
   },
 
@@ -1112,5 +1302,73 @@ const app = {
   }
 };
 </script>
+
+<!-- Modal Quick Edit Card -->
+<div id="modal-quick-edit-card" class="modal-overlay hidden" style="z-index: 350;">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-body">
+      <div class="flex items-center justify-between mb-3 border-b-2 border-black pb-2">
+        <h3 class="font-black text-base uppercase">Edit Soal Sesi Ini</h3>
+        <button class="neo-button px-2 py-0.5 text-xs bg-white" onclick="app.closeModal('modal-quick-edit-card')"><i class="fas fa-xmark"></i></button>
+      </div>
+      <input type="hidden" id="quick-edit-id">
+      <input type="hidden" id="quick-edit-type">
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Pertanyaan</label>
+          <textarea class="neo-textarea" id="quick-edit-question" rows="3"></textarea>
+        </div>
+        <div id="quick-edit-wrap-answer">
+          <label class="text-[11px] font-black uppercase opacity-60">Jawaban</label>
+          <textarea class="neo-textarea" id="quick-edit-answer" rows="2"></textarea>
+        </div>
+        <div id="quick-edit-wrap-pg" class="hidden">
+          <label class="text-[11px] font-black uppercase opacity-60">Opsi Jawaban</label>
+          <div class="flex flex-col gap-2 mt-1">
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="0"><input class="neo-input quick-pg-opt" data-idx="0" placeholder="Opsi A"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="1"><input class="neo-input quick-pg-opt" data-idx="1" placeholder="Opsi B"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="2"><input class="neo-input quick-pg-opt" data-idx="2" placeholder="Opsi C"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="3"><input class="neo-input quick-pg-opt" data-idx="3" placeholder="Opsi D"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button class="neo-button flex-1 py-2.5 bg-white text-xs" onclick="app.closeModal('modal-quick-edit-card')">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-green text-xs" id="quick-edit-save-btn" onclick="app.saveQuickEditCard(this)">SIMPAN PERUBAHAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Summary -->
+<div id="modal-summary" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-body text-center">
+      <div class="text-5xl mb-2" id="summary-emoji">🎉</div>
+      <h3 class="font-black text-xl mb-1">Sesi Selesai!</h3>
+      <p class="font-bold text-3xl mb-1" id="summary-score">0/0</p>
+      <p class="text-sm font-bold opacity-60 mb-5" id="summary-accuracy">0% benar</p>
+      <button class="neo-button w-full py-3 bg-neo-green" onclick="app.closeModal('modal-summary'); app.showKitabList();">KEMBALI KE DASHBOARD</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirm -->
+<div id="modal-confirm" class="modal-overlay hidden" style="z-index: 300;">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-body text-center">
+      <div class="w-12 h-12 rounded-full border-[3px] border-black bg-neo-yellow mx-auto mb-3 flex items-center justify-center text-lg">
+        <i class="fas fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="font-black text-lg mb-1" id="confirm-modal-title">Konfirmasi</h3>
+      <p class="text-sm font-semibold opacity-70 mb-5 leading-relaxed" id="confirm-modal-msg">Apakah Anda yakin?</p>
+      <div class="flex gap-2">
+        <button class="neo-button flex-1 py-2.5 bg-white text-xs" onclick="app.closeModal('modal-confirm')">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-red text-xs" id="confirm-modal-action-btn">YA, LANJUTKAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
