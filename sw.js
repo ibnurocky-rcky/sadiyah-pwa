@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sadiyah-pwa-v2';
+const CACHE_NAME = 'sadiyah-pwa-v3';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -32,41 +32,12 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('fetch', function(e) {
   const url = e.request.url;
 
-  // Jika request ke Google Apps Script (Backend Database)
+  // Lewati request ke Google Apps Script dari Service Worker fetch interception 
+  // agar ditangani langsung oleh logika fetch di index.html (mencegah bentrok CORS/Cache SW)
   if (url.includes('script.google.com')) {
-    e.respondUrl = e.request;
-    e.respondWith(
-      fetch(e.request)
-        .then(function(response) {
-          // Clone respons dan simpan ke Cache API agar bisa dibaca saat offline
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(e.request, clone);
-            });
-          }
-          return response;
-        })
-        .catch(function() {
-          // Jika offline, ambil data terakhir dari cache
-          return caches.match(e.request).then(function(cachedResponse) {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            // Fallback jika belum pernah dicache sama sekali
-            return new Response(JSON.stringify({ 
-              ok: false, 
-              message: 'Mode Offline: Menggunakan data lokal terakhir.' 
-            }), {
-              headers: { 'Content-Type': 'application/json' }
-            });
-          });
-        })
-    );
     return;
   }
 
-  // Untuk aset statis (HTML, CSS, CDN)
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       return cached || fetch(e.request);
