@@ -1,6 +1,8 @@
-const CACHE_NAME = 'sadiyah-pwa-v1';
+const CACHE_NAME = 'sadiyah-pwa-v2';
 const ASSETS = [
+  './',
   './index.html',
+  './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800;900&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
