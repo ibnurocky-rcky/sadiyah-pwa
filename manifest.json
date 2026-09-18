@@ -1,0 +1,15 @@
+{
+  "name": "Sa'diyah Quiz PWA",
+  "short_name": "SadiyahQuiz",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4F4F0",
+  "theme_color": "#00FF85",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/330/330541.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

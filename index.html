@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sa'diyah Quiz — Retrieval Practice</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#00FF85">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --neo-border:3px solid #000; --neo-shadow:4px 4px 0px #000; --neo-shadow-hover:6px 6px 0px #000;
+  --neo-shadow-active:0px 0px 0px #000; --neo-radius:10px;
+  --color-primary:#00FF85; --color-danger:#FF4646; --color-warning:#FFDE00;
+  --color-blue:#00BFFF; --color-purple:#A855F7; --color-bg:#F4F4F0; --color-card:#FFFFFF;
+}
+*{-webkit-tap-highlight-color:transparent;}
+body{font-family:'Public Sans',sans-serif;background:var(--color-bg);color:#000;margin:0;padding-bottom:80px;padding-top:env(safe-area-inset-top);padding-bottom:calc(80px + env(safe-area-inset-bottom));overscroll-behavior-y:none;-webkit-font-smoothing:antialiased;}
+.neo-box{border:var(--neo-border);border-radius:var(--neo-radius);box-shadow:var(--neo-shadow);background:var(--color-card);transition:transform .1s ease,box-shadow .1s ease;}
+.neo-button{border:var(--neo-border);border-radius:var(--neo-radius);box-shadow:var(--neo-shadow);font-weight:800;text-transform:uppercase;cursor:pointer;transition:transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .12s ease;position:relative;top:0;left:0;background:var(--color-card);will-change:transform;}
+.neo-button:active:not(:disabled){box-shadow:var(--neo-shadow-active);transform:translate(4px,4px);}
+.neo-button:hover:not(:disabled){box-shadow:var(--neo-shadow-hover);transform:translate(-1px,-1px);}
+.neo-button:disabled{opacity:.55;cursor:not-allowed;box-shadow:2px 2px 0 #000;transform:none;}
+.neo-button.is-loading{color:transparent !important;pointer-events:none;}
+.neo-button.is-loading::after{content:'';position:absolute;inset:0;margin:auto;width:16px;height:16px;border:3px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.neo-input,.neo-select,.neo-textarea{border:var(--neo-border);border-radius:var(--neo-radius);padding:.65rem .9rem;width:100%;font-family:inherit;font-weight:600;background:var(--color-card);transition:box-shadow .12s ease;}
+.neo-input:focus,.neo-select:focus,.neo-textarea:focus{outline:none;box-shadow:2px 2px 0 #000;}
+.bg-neo-green{background:var(--color-primary);} .bg-neo-red{background:var(--color-danger);color:#fff;}
+.bg-neo-yellow{background:var(--color-warning);} .bg-neo-blue{background:var(--color-blue);}
+.bg-neo-purple{background:var(--color-purple);color:#fff;}
+
+@keyframes pulse-urgent{0%,100%{transform:scale(1);}50%{transform:scale(1.025);}}
+.pulse-urgent{animation:pulse-urgent 1.8s infinite ease-in-out;}
+
+@keyframes fireFlicker {
+  0%, 100% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 2px rgba(255,100,0,0.8)); }
+  50% { transform: scale(1.12) rotate(3deg); filter: drop-shadow(0 0 8px rgba(255,50,0,1)); }
+}
+.animate-fire { animation: fireFlicker 1.2s infinite ease-in-out; display: inline-block; transform-origin: bottom center; }
+
+.view-panel{animation:viewIn .22s cubic-bezier(.2,.7,.3,1) both;}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.skel{position:relative;overflow:hidden;background:#e9e9e4;border-radius:8px;}
+.skel::after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:shimmer 1.3s infinite;}
+@keyframes shimmer{100%{transform:translateX(100%);}}
+
+#toast-container{position:fixed;top:16px;right:16px;left:16px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none;}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:12px 16px;border:2.5px solid #000;border-radius:10px;box-shadow:3px 3px 0 #000;font-weight:700;font-size:13px;background:#fff;transform:translateY(-16px);opacity:0;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;cursor:pointer;position:relative;overflow:hidden;max-width:320px;}
+.toast::after{content:'';position:absolute;bottom:0;left:0;height:3px;width:100%;background:rgba(0,0,0,.15);animation:toastTimer 3s linear forwards;}
+.toast-success{border-left:5px solid var(--color-primary);} .toast-success::after{background:var(--color-primary);}
+.toast-error{border-left:5px solid var(--color-danger);} .toast-error::after{background:var(--color-danger);}
+.toast-info{border-left:5px solid var(--color-blue);} .toast-info::after{background:var(--color-blue);}
+.toast-warning{border-left:5px solid var(--color-warning);} .toast-warning::after{background:var(--color-warning);}
+.toast-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #000;flex-shrink:0;}
+.toast-success .toast-icon{background:var(--color-primary);} .toast-error .toast-icon{background:var(--color-danger);color:#fff;}
+.toast-info .toast-icon{background:var(--color-blue);} .toast-warning .toast-icon{background:var(--color-warning);}
+.toast-exit{animation:toastOut .2s ease-in forwards;}
+@keyframes toastIn{from{transform:translateY(-16px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes toastOut{to{transform:translateX(40px);opacity:0;}}
+@keyframes toastTimer{from{width:100%;}to{width:0%;}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;animation:overlayIn .15s ease-out;}
+@keyframes overlayIn{from{opacity:0;}to{opacity:1;}}
+.modal-box{background:var(--color-card);border:var(--neo-border);border-radius:var(--neo-radius);box-shadow:8px 8px 0 #000;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:modalIn .22s cubic-bezier(.2,.9,.3,1.2) both;}
+@keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-body{overflow-y:auto;padding:20px;}
+.hidden{display:none !important;}
+
+.progress-track{width:100%;height:14px;border:2.5px solid #000;border-radius:8px;background:#fff;overflow:hidden;}
+.progress-fill{height:100%;background:var(--color-primary);transition:width .5s cubic-bezier(.2,.7,.3,1);}
+
+.flip-card{perspective:1200px;min-height:180px;cursor:pointer;}
+.flip-card-inner{position:relative;width:100%;min-height:180px;transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d;}
+.flip-card.flipped .flip-card-inner{transform:rotateY(180deg);}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border:var(--neo-border);border-radius:var(--neo-radius);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-weight:800;font-size:1.15rem;background:#fff;}
+.flip-back{transform:rotateY(180deg);background:var(--color-primary);}
+
+.pg-option{border:var(--neo-border);border-radius:var(--neo-radius);padding:12px 14px;font-weight:700;text-align:left;cursor:pointer;background:#fff;transition:transform .1s ease,box-shadow .1s ease,background .15s ease;}
+.pg-option:hover:not(:disabled){box-shadow:3px 3px 0 #000;transform:translate(-1px,-1px);}
+.pg-option.correct{background:var(--color-primary);}
+.pg-option.wrong{background:var(--color-danger);color:#fff;}
+.pg-option:disabled{cursor:default;}
+
+.type-badge{font-size:10px;font-weight:900;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:2px solid #000;display:inline-block;}
+
+.list-item-enter{animation:listIn .2s ease-out both;}
+@keyframes listIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:translateX(0);}}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ══════ MODAL: PIN LOCK (PIN PAD) ══════ -->
+<div id="modal-pin" class="modal-overlay" style="z-index: 99999;">
+  <div class="modal-box" style="max-width:340px;">
+    <div class="modal-body text-center">
+      <div class="w-12 h-12 rounded-full border-[3px] border-black bg-neo-yellow mx-auto mb-2 flex items-center justify-center text-lg">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h3 class="font-black text-lg mb-1">Akses Terproteksi</h3>
+      <p class="text-[11px] font-semibold opacity-70 mb-4">Masukkan 6 digit PIN untuk membuka Sa'diyah Quiz.</p>
+      
+      <div class="flex justify-center gap-3 mb-5">
+        <div class="w-4 h-4 rounded-full border-2 border-black pin-dot" id="dot-0"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-black pin-dot" id="dot-1"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-black pin-dot" id="dot-2"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-black pin-dot" id="dot-3"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-black pin-dot" id="dot-4"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-black pin-dot" id="dot-5"></div>
+      </div>
+      
+      <div class="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto">
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('1')">1</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('2')">2</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('3')">3</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('4')">4</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('5')">5</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('6')">6</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('7')">7</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('8')">8</button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('9')">9</button>
+        <button class="neo-button py-3 text-xs font-black bg-white opacity-40 cursor-default" disabled></button>
+        <button class="neo-button py-3 text-lg font-black bg-white" onclick="app.pressPin('0')">0</button>
+        <button class="neo-button py-3 text-sm font-black bg-neo-red text-white" onclick="app.clearPin()"><i class="fas fa-backspace"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ HEADER ══════ -->
+<header id="main-header" class="sticky top-0 z-30 bg-[var(--color-bg)] border-b-[3px] border-black px-4 py-3 flex items-center justify-between shadow-sm">
+  <div>
+    <h1 class="font-black text-lg tracking-tight leading-none">Sa'diyah Quiz</h1>
+    <p class="text-[10px] font-black uppercase opacity-60 tracking-wider mt-0.5">Retrieval Practice</p>
+  </div>
+  <button class="neo-button w-10 h-10 rounded-full bg-white flex items-center justify-center text-sm" onclick="app.openSettings()"><i class="fas fa-gear"></i></button>
+</header>
+
+<main class="px-4 py-4 max-w-3xl mx-auto flex flex-col gap-4">
+
+  <div id="top-dashboard-wrap" class="flex flex-col gap-4">
+    <div class="neo-box p-4 bg-neo-yellow" id="countdown-box">
+      <p class="text-[11px] font-black uppercase opacity-70" id="countdown-label">Target Ujian</p>
+      <p class="font-black text-2xl" id="countdown-timer">--</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2" id="stats-row">
+      <div class="skel h-14"></div><div class="skel h-14"></div><div class="skel h-14"></div><div class="skel h-14"></div>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="neo-button flex-1 bg-neo-purple py-3 text-sm" onclick="app.openInterleaveSession(this)">
+        <i class="fas fa-shuffle mr-1"></i> SESI CAMPUR
+      </button>
+      <button class="neo-button flex-1 bg-neo-blue py-3 text-sm" onclick="app.showDarsForm(null)">
+        <i class="fas fa-plus mr-1"></i> DARS BARU
+      </button>
+    </div>
+  </div>
+
+  <div id="view-kitab" class="view-panel">
+    <div class="flex items-center justify-between mb-2">
+      <h2 class="font-black text-sm uppercase opacity-60" id="current-view-title">Daftar Kitab / Madah</h2>
+      <button class="text-xs font-black uppercase text-[var(--color-blue)] underline hidden" id="back-to-kitab-btn" onclick="app.showKitabList()">← Kembali ke Daftar Kitab</button>
+    </div>
+    <div id="kitab-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="skel h-40"></div><div class="skel h-40"></div>
+    </div>
+    <div id="dars-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 hidden"></div>
+    <p id="dars-empty" class="hidden text-center text-sm font-bold opacity-50 py-8">Belum ada dars. Tambahkan dulu ya.</p>
+  </div>
+
+  <div id="view-dars-form" class="view-panel hidden">
+    <button class="text-xs font-black uppercase text-[var(--color-blue)] underline mb-3" onclick="app.showKitabList()">← Kembali</button>
+    <div class="neo-box p-5">
+      <h3 class="font-black text-lg mb-4" id="dars-form-title">Dars Baru</h3>
+      <input type="hidden" id="dars-form-id">
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Kitab / Madah</label>
+          <input class="neo-input" id="dars-form-kitab" placeholder="Contoh: Safinatun Najah">
+        </div>
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Bab</label>
+          <input class="neo-input" id="dars-form-bab" placeholder="Contoh: Thoharoh">
+        </div>
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Judul Pertemuan</label>
+          <input class="neo-input" id="dars-form-judul" placeholder="Contoh: Pertemuan 3 — Najis">
+        </div>
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Link Catatan Notion (opsional)</label>
+          <input class="neo-input" id="dars-form-notion" placeholder="https://notion.so/...">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button class="neo-button flex-1 py-2.5 bg-white" onclick="app.showKitabList()">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-green" id="dars-form-save-btn" onclick="app.saveDarsForm(this)">SIMPAN</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-manage" class="view-panel hidden">
+    <button class="text-xs font-black uppercase text-[var(--color-blue)] underline mb-3" onclick="app.showKitabList()">← Kembali</button>
+
+    <div id="manage-list-view">
+      <h3 class="font-black text-lg mb-3" id="manage-title">Kelola Soal</h3>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="neo-button flex-1 py-2 text-xs bg-neo-green" onclick="app.openCardForm(null)"><i class="fas fa-plus mr-1"></i>TAMBAH SOAL</button>
+        <button class="neo-button flex-1 py-2 text-xs bg-neo-blue" onclick="app.downloadCSVTemplate()"><i class="fas fa-download mr-1"></i>TEMPLATE CSV</button>
+        <label class="neo-button flex-1 py-2 text-xs bg-white text-center cursor-pointer">
+          <i class="fas fa-upload mr-1"></i><span id="csv-btn-text">IMPORT CSV</span>
+          <input type="file" accept=".csv" class="hidden" onchange="app.handleCSVUpload(event)">
+        </label>
+      </div>
+      <div id="cards-list" class="flex flex-col gap-2"></div>
+      <p id="cards-empty" class="hidden text-center text-sm font-bold opacity-50 py-8">Belum ada soal di dars ini.</p>
+    </div>
+
+    <div id="manage-form-view" class="hidden neo-box p-5">
+      <input type="hidden" id="card-form-id">
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Tipe Soal</label>
+          <select class="neo-select" id="card-form-type" onchange="app.onCardTypeChange()">
+            <option value="flashcard">Flashcard</option>
+            <option value="pg">Pilihan Ganda</option>
+            <option value="isian">Isian</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Pertanyaan</label>
+          <textarea class="neo-textarea" id="card-form-question" rows="3"></textarea>
+        </div>
+
+        <div id="fields-flashcard">
+          <label class="text-[11px] font-black uppercase opacity-60">Jawaban</label>
+          <textarea class="neo-textarea" id="card-form-answer-fc" rows="2"></textarea>
+        </div>
+
+        <div id="fields-isian" class="hidden">
+          <label class="text-[11px] font-black uppercase opacity-60">Kunci Jawaban (ditampilkan saat self-grade)</label>
+          <textarea class="neo-textarea" id="card-form-answer-isian" rows="2"></textarea>
+        </div>
+
+        <div id="fields-pg" class="hidden">
+          <label class="text-[11px] font-black uppercase opacity-60">Opsi Jawaban (pilih radio = jawaban benar)</label>
+          <div class="flex flex-col gap-2 mt-1" id="pg-options-wrap">
+            <div class="flex items-center gap-2"><input type="radio" name="pg-correct" value="0" checked><input class="neo-input pg-opt-input" data-idx="0" placeholder="Opsi A"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="pg-correct" value="1"><input class="neo-input pg-opt-input" data-idx="1" placeholder="Opsi B"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="pg-correct" value="2"><input class="neo-input pg-opt-input" data-idx="2" placeholder="Opsi C"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="pg-correct" value="3"><input class="neo-input pg-opt-input" data-idx="3" placeholder="Opsi D"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button class="neo-button flex-1 py-2.5 bg-white" onclick="app.closeCardForm()">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-green" id="card-form-save-btn" onclick="app.saveCardForm(this)">SIMPAN SOAL</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-quiz" class="view-panel hidden">
+    <div class="flex items-center justify-between mb-3">
+      <span class="type-badge bg-neo-purple" id="quiz-dars-label">-</span>
+      <button onclick="app.closeQuizConfirm()" class="neo-button px-3 py-1 bg-white text-xs"><i class="fas fa-arrow-left mr-1"></i> KELUAR</button>
+    </div>
+    <div class="flex items-center justify-between text-xs font-black mb-1">
+      <span id="quiz-progress-text">1 / 10</span>
+      <span id="quiz-score-text">Skor: 0</span>
+    </div>
+    <div class="progress-track mb-4"><div class="progress-fill" id="quiz-progress-fill" style="width:0%"></div></div>
+    <div class="neo-box p-5" id="quiz-body"></div>
+  </div>
+
+</main>
+
+<div id="modal-summary" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-body text-center">
+      <div class="text-5xl mb-2" id="summary-emoji">🎉</div>
+      <h3 class="font-black text-xl mb-1">Sesi Selesai!</h3>
+      <p class="font-bold text-3xl mb-1" id="summary-score">0/0</p>
+      <p class="text-sm font-bold opacity-60 mb-5" id="summary-accuracy">0% benar</p>
+      <button class="neo-button w-full py-3 bg-neo-green" onclick="app.closeModal('modal-summary'); app.showKitabList();">KEMBALI KE DASHBOARD</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-confirm" class="modal-overlay hidden" style="z-index: 300;">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-body text-center">
+      <div class="w-12 h-12 rounded-full border-[3px] border-black bg-neo-yellow mx-auto mb-3 flex items-center justify-center text-lg">
+        <i class="fas fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="font-black text-lg mb-1" id="confirm-modal-title">Konfirmasi</h3>
+      <p class="text-sm font-semibold opacity-70 mb-5 leading-relaxed" id="confirm-modal-msg">Apakah Anda yakin?</p>
+      <div class="flex gap-2">
+        <button class="neo-button flex-1 py-2.5 bg-white text-xs" onclick="app.closeModal('modal-confirm')">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-red text-xs" id="confirm-modal-action-btn">YA, LANJUTKAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-quick-edit-card" class="modal-overlay hidden" style="z-index: 350;">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-body">
+      <div class="flex items-center justify-between mb-3 border-b-2 border-black pb-2">
+        <h3 class="font-black text-base uppercase">Edit Soal Sesi Ini</h3>
+        <button class="neo-button px-2 py-0.5 text-xs bg-white" onclick="app.closeModal('modal-quick-edit-card')"><i class="fas fa-xmark"></i></button>
+      </div>
+      <input type="hidden" id="quick-edit-id">
+      <input type="hidden" id="quick-edit-type">
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Pertanyaan</label>
+          <textarea class="neo-textarea" id="quick-edit-question" rows="3"></textarea>
+        </div>
+        <div id="quick-edit-wrap-answer">
+          <label class="text-[11px] font-black uppercase opacity-60">Jawaban</label>
+          <textarea class="neo-textarea" id="quick-edit-answer" rows="2"></textarea>
+        </div>
+        <div id="quick-edit-wrap-pg" class="hidden">
+          <label class="text-[11px] font-black uppercase opacity-60">Opsi Jawaban</label>
+          <div class="flex flex-col gap-2 mt-1">
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="0"><input class="neo-input quick-pg-opt" data-idx="0" placeholder="Opsi A"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="1"><input class="neo-input quick-pg-opt" data-idx="1" placeholder="Opsi B"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="2"><input class="neo-input quick-pg-opt" data-idx="2" placeholder="Opsi C"></div>
+            <div class="flex items-center gap-2"><input type="radio" name="quick-pg-correct" value="3"><input class="neo-input quick-pg-opt" data-idx="3" placeholder="Opsi D"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button class="neo-button flex-1 py-2.5 bg-white text-xs" onclick="app.closeModal('modal-quick-edit-card')">BATAL</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-green text-xs" id="quick-edit-save-btn" onclick="app.saveQuickEditCard(this)">SIMPAN PERUBAHAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-settings" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-body">
+      <h3 class="font-black text-lg mb-4">Pengaturan Target Ujian</h3>
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Nama Target</label>
+          <input class="neo-input" id="settings-name">
+        </div>
+        <div>
+          <label class="text-[11px] font-black uppercase opacity-60">Tanggal & Jam</label>
+          <input class="neo-input" type="datetime-local" id="settings-date">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button class="neo-button flex-1 py-2.5 bg-white" onclick="app.closeModal('modal-settings')">TUTUP</button>
+        <button class="neo-button flex-1 py-2.5 bg-neo-green" id="settings-save-btn" onclick="app.saveSettingsForm(this)">SIMPAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZKhQjNl7Z4UJHFsaKqgYSZKRwC0F4acftM2bdTUQXGarWuTYVIN4oFFJymFf81Sk/exec';
+
+let DB = { settings:{}, darsList:[], stats:{}, appUrl:'' };
+let currentDarsId = null;
+let currentKitab = null;
+let currentCards = [];
+let quiz = { queue:[], index:0, score:0, mode:'per_dars', answered:false, selected:null };
+let countdownTimer = null;
+
+function getQueryParamDars() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var d = params.get('dars');
+    if (d) return d;
+  } catch (e) {}
+  return '';
+}
+
+let INITIAL_DARS_ID = getQueryParamDars();
+
+function runServer(fnName, args, onSuccess, onError){
+  args = args || [];
+  
+  var payload = {};
+  if (fnName === 'getDarsCards' || fnName === 'deleteDars') {
+    payload.darsId = args[0];
+  } else if (fnName === 'createDars' || fnName === 'updateDarsInfo') {
+    payload.darsObj = args[0];
+  } else if (fnName === 'saveNewCard' || fnName === 'updateCard') {
+    payload.darsId = args[0];
+    payload.cardObj = args[1];
+  } else if (fnName === 'deleteCard') {
+    payload.darsId = args[0];
+    payload.cardId = args[1];
+  } else if (fnName === 'saveBulkCards') {
+    payload.darsId = args[0];
+    payload.cardsArray = args[1];
+  } else if (fnName === 'recordAttempt') {
+    payload.darsId = args[0];
+    payload.cardId = args[1];
+    payload.quality = args[2];
+    payload.mode = args[3];
+  } else if (fnName === 'getQuizQueue') {
+    payload.darsIds = args[0];
+    payload.mode = args[1];
+    payload.dueOnly = args[2];
+  } else if (fnName === 'saveSettings') {
+    payload.name = args[0];
+    payload.dateStr = args[1];
+  }
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: fnName, payload: payload }),
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(json) {
+    if (json.ok) {
+      if (onSuccess) onSuccess(json.data);
+    } else {
+      if (onError) onError(json.message);
+      else app.showToast(json.message, 'error');
+    }
+  })
+  .catch(function(err) {
+    if (onError) onError(err);
+    else app.showToast('Koneksi terganggu / offline.', 'warning');
+  });
+}
+
+const app = {
+  init(){
+    this.setupPinInputs();
+    if (sessionStorage.getItem('sadiyah_auth') === 'true'){
+      document.getElementById('modal-pin').classList.add('hidden');
+    }
+
+    runServer('getInitialData', [], (data) => {
+      DB = data;
+      this.renderStats();
+      this.renderDarsGrid();
+      this.startCountdown();
+      document.getElementById('settings-name').value = DB.settings.targetName;
+      if (DB.settings.targetDate) document.getElementById('settings-date').value = this.toDatetimeLocal(DB.settings.targetDate);
+
+      if (INITIAL_DARS_ID) {
+        this.tryOpenDarsDirectly(INITIAL_DARS_ID);
+      }
+    }, (err) => {
+      this.showToast('Gagal memuat data: ' + (err && err.message ? err.message : err), 'error');
+      document.getElementById('kitab-grid').innerHTML = '<p class="text-sm font-bold opacity-60 col-span-2 text-center py-8">Gagal memuat. <button class="underline text-[var(--color-blue)]" onclick="app.init()">Coba lagi</button></p>';
+    });
+  },
+
+  lock(btn){
+    if (!btn) return null;
+    if (btn.classList.contains('is-loading')) return null;
+    btn.dataset._label = btn.innerHTML;
+    btn.classList.add('is-loading');
+    btn.disabled = true;
+    return btn;
+  },
+  unlock(btn){
+    if (!btn) return;
+    btn.classList.remove('is-loading');
+    btn.disabled = false;
+  },
+
+  startCountdown(){
+    if (countdownTimer) clearInterval(countdownTimer);
+    const update = () => {
+      const target = new Date(DB.settings.targetDate).getTime();
+      const now = Date.now();
+      const diff = target - now;
+      const box = document.getElementById('countdown-box');
+      document.getElementById('countdown-label').textContent = DB.settings.targetName || 'Target Ujian';
+      if (diff <= 0){
+        document.getElementById('countdown-timer').textContent = 'Waktu habis!';
+        box.classList.add('bg-neo-red'); box.classList.remove('bg-neo-yellow');
+        return;
+      }
+      const d = Math.floor(diff/86400000), h = Math.floor(diff%86400000/3600000), m = Math.floor(diff%3600000/60000), s = Math.floor(diff%60000/1000);
+      document.getElementById('countdown-timer').textContent = d + 'h ' + h + 'j ' + m + 'm ' + s + 'dt';
+      if (diff < 86400000){ box.classList.add('pulse-urgent'); } else { box.classList.remove('pulse-urgent'); }
+    };
+    update();
+    countdownTimer = setInterval(update, 1000);
+  },
+
+  toDatetimeLocal(iso){
+    const d = new Date(iso);
+    const pad = n => n.toString().padStart(2,'0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  },
+
+  renderStats(){
+    const s = DB.stats || {};
+    const totalDue = DB.darsList.reduce((a,d) => a + d.dueCount, 0);
+    const items = [
+      { label:'Dars', value: DB.darsList.length, color:'bg-white' },
+      { label:'Jatuh Tempo', value: totalDue, color: totalDue>0 ? 'bg-neo-yellow' : 'bg-white' },
+      { label:'Akurasi 7hr', value: s.accuracy7d===null||s.accuracy7d===undefined ? '-' : s.accuracy7d+'%', color:'bg-white' },
+      { label:'Streak', value: ((s.streakDays||0) > 0 ? '<i class="fas fa-fire text-orange-500 animate-fire"></i> ' : '') + (s.streakDays||0) + 'd', color: (s.streakDays>0) ? 'bg-neo-yellow' : 'bg-white' }
+    ];
+    document.getElementById('stats-row').innerHTML = items.map(i => `
+      <div class="neo-box ${i.color} p-2 text-center flex flex-col justify-center">
+        <p class="font-black text-lg leading-none">${i.value}</p>
+        <p class="text-[9px] font-black uppercase opacity-60 mt-1">${i.label}</p>
+      </div>`).join('');
+  },
+
+  switchView(name){
+    ['view-kitab','view-dars-form','view-manage','view-quiz'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    const el = document.getElementById(name);
+    el.classList.remove('hidden');
+
+    const mainHeader = document.getElementById('main-header');
+    const topWrap = document.getElementById('top-dashboard-wrap');
+
+    if (name === 'view-quiz') {
+      if (mainHeader) mainHeader.classList.add('hidden');
+      if (topWrap) topWrap.classList.add('hidden');
+    } else {
+      if (mainHeader) mainHeader.classList.remove('hidden');
+      if (topWrap) topWrap.classList.remove('hidden');
+    }
+
+    el.classList.remove('view-panel'); void el.offsetWidth; el.classList.add('view-panel');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  kitabColor(str){
+    const colors = ['bg-neo-blue','bg-neo-purple','bg-neo-yellow','bg-neo-green'];
+    let hash = 0;
+    for (let i=0;i<str.length;i++) hash = str.charCodeAt(i) + ((hash<<5)-hash);
+    return colors[Math.abs(hash) % colors.length];
+  },
+
+  renderDarsGrid(){
+    if (currentKitab) this.renderPertemuanList(currentKitab);
+    else this.renderKitabList();
+  },
+
+  renderKitabList(){
+    this.switchView('view-kitab');
+    const kitabGrid = document.getElementById('kitab-grid');
+    const darsGrid = document.getElementById('dars-grid');
+    const empty = document.getElementById('dars-empty');
+    const backBtn = document.getElementById('back-to-kitab-btn');
+    const titleEl = document.getElementById('current-view-title');
+
+    titleEl.textContent = 'Daftar Kitab / Madah';
+    backBtn.classList.add('hidden');
+    darsGrid.classList.add('hidden');
+    kitabGrid.classList.remove('hidden');
+
+    if (!DB.darsList.length){ kitabGrid.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+
+    const groups = {};
+    DB.darsList.forEach(d => {
+      const k = d.kitab || 'Tanpa Kitab';
+      if (!groups[k]){ groups[k] = { kitab: k, totalDars: 0, totalCards: 0, dueCount: 0, masteredCount: 0, darsIds: [] }; }
+      groups[k].totalDars++;
+      groups[k].totalCards += d.totalCards;
+      groups[k].dueCount += d.dueCount;
+      groups[k].masteredCount += d.masteredCount;
+      groups[k].darsIds.push(d.id);
+    });
+
+    const kitabNames = Object.keys(groups);
+    kitabGrid.innerHTML = kitabNames.map((kName, idx) => {
+      const g = groups[kName];
+      const avgMastery = g.totalCards ? Math.round((g.masteredCount / g.totalCards) * 100) : 0;
+      return `
+      <div class="neo-box p-4 flex flex-col gap-3 cursor-pointer hover:bg-black/5 transition-colors list-item-enter" style="animation-delay:${Math.min(idx*40,240)}ms" onclick="app.selectKitab('${this.esc(kName)}')">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="type-badge ${this.kitabColor(kName)}">KITAB / MADAH</span>
+            <h3 class="font-black text-lg mt-1.5 leading-tight">${this.esc(kName)}</h3>
+            <p class="text-xs font-semibold opacity-60 mt-0.5">${g.totalDars} Pertemuan / Dars</p>
+          </div>
+          <div class="w-9 h-9 rounded-full border-2 border-black bg-white flex items-center justify-center shrink-0">
+            <i class="fas fa-chevron-right text-xs"></i>
+          </div>
+        </div>
+        <div class="flex gap-2 text-[10px] font-black">
+          <span class="border-2 border-black rounded-md px-2 py-1">${g.totalCards} SOAL</span>
+          <span class="border-2 border-black rounded-md px-2 py-1 ${g.dueCount>0?'bg-neo-yellow':''}">${g.dueCount} JATUH TEMPO</span>
+        </div>
+        <div>
+          <div class="flex justify-between text-[9px] font-black mb-1 opacity-60"><span>MASTERY KESELURUHAN</span><span>${avgMastery}%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${avgMastery}%"></div></div>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button class="neo-button flex-1 py-2 text-[11px] bg-neo-purple" onclick="event.stopPropagation(); app.startSession(${JSON.stringify(g.darsIds).replace(/"/g, '&quot;')},'per_dars', this)">
+            <i class="fas fa-play mr-1"></i> LATIH SEMUA PERTEMUAN
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  selectKitab(kitabName){
+    currentKitab = kitabName;
+    this.renderPertemuanList(kitabName);
+  },
+
+  showKitabList(){
+    currentKitab = null;
+    this.renderKitabList();
+  },
+
+  renderPertemuanList(kitabName){
+    this.switchView('view-kitab');
+    const kitabGrid = document.getElementById('kitab-grid');
+    const darsGrid = document.getElementById('dars-grid');
+    const empty = document.getElementById('dars-empty');
+    const backBtn = document.getElementById('back-to-kitab-btn');
+    const titleEl = document.getElementById('current-view-title');
+
+    kitabGrid.classList.add('hidden');
+    darsGrid.classList.remove('hidden');
+    backBtn.classList.remove('hidden');
+    titleEl.textContent = kitabName;
+
+    const filtered = DB.darsList.filter(d => (d.kitab || 'Tanpa Kitab') === kitabName);
+    if (!filtered.length){ darsGrid.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+
+    darsGrid.innerHTML = filtered.map((d, idx) => {
+      const mastery = d.totalCards ? Math.round(d.masteredCount / d.totalCards * 100) : 0;
+      return `
+      <div class="neo-box p-4 flex flex-col gap-3 list-item-enter" style="animation-delay:${Math.min(idx*40,240)}ms">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="type-badge ${this.kitabColor(d.kitab)}">${this.esc(d.kitab)}</span>
+            <h3 class="font-black text-base mt-1.5 leading-tight">${this.esc(d.bab)}</h3>
+            <p class="text-xs font-semibold opacity-60 truncate">${this.esc(d.judul)}</p>
+          </div>
+          <button onclick="app.confirmDeleteDars('${d.id}')" class="text-black/30 hover:text-[var(--color-danger)] shrink-0"><i class="fas fa-trash text-sm"></i></button>
+        </div>
+        <div class="flex gap-2 text-[10px] font-black">
+          <span class="border-2 border-black rounded-md px-2 py-1">${d.totalCards} SOAL</span>
+          <span class="border-2 border-black rounded-md px-2 py-1 ${d.dueCount>0?'bg-neo-yellow':''}">${d.dueCount} JATUH TEMPO</span>
+        </div>
+        <div>
+          <div class="flex justify-between text-[9px] font-black mb-1 opacity-60"><span>MASTERY</span><span>${mastery}%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${mastery}%"></div></div>
+        </div>
+        <div class="flex gap-2">
+          <button class="neo-button flex-1 py-2 text-[11px] bg-neo-green" onclick="app.startSession(['${d.id}'],'per_dars', this)">MULAI SESI</button>
+          <button class="neo-button px-2.5 py-2 text-xs bg-white" title="Buka Sesi di Tab Baru" onclick="app.openDarsInNewTab('${d.id}')"><i class="fas fa-arrow-up-right-from-square"></i></button>
+          <button class="neo-button w-9 py-2 text-xs bg-white" title="Kelola Soal" onclick="app.openManageCards('${d.id}')"><i class="fas fa-list-check"></i></button>
+          <button class="neo-button w-9 py-2 text-xs bg-white" title="Salin Link" onclick="app.copyLinkDars('${d.id}')"><i class="fas fa-link"></i></button>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  openDarsInNewTab(darsId){
+    const blogBaseUrl = window.location.href.split('?')[0];
+    const link = blogBaseUrl + '?dars=' + encodeURIComponent(darsId);
+    window.open(link, '_blank');
+  },
+
+  copyLinkDars(darsId){
+    const blogBaseUrl = window.location.href.split('?')[0];
+    const link = blogBaseUrl + '?dars=' + encodeURIComponent(darsId);
+    this.copyToClipboard(link, 'Link dars disalin!');
+  },
+
+  copyToClipboard(text, successMsg){
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText='position:fixed;opacity:0;';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { document.execCommand('copy'); this.showToast(successMsg, 'success'); }
+      catch(e){ this.showToast('Gagal menyalin, salin manual: ' + text, 'warning'); }
+      ta.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(() => this.showToast(successMsg,'success')).catch(fallback);
+    } else fallback();
+  },
+
+  currentPinInput: '',
+  setupPinInputs(){
+    this.currentPinInput = '';
+    this.updatePinDots();
+  },
+  pressPin(digit){
+    if (this.currentPinInput.length < 6){
+      this.currentPinInput += digit;
+      this.updatePinDots();
+      if (this.currentPinInput.length === 6){
+        setTimeout(() => this.verifyPin(), 120);
+      }
+    }
+  },
+  clearPin(){
+    if (this.currentPinInput.length > 0){
+      this.currentPinInput = this.currentPinInput.slice(0, -1);
+      this.updatePinDots();
+    }
+  },
+  updatePinDots(){
+    for (let i = 0; i < 6; i++){
+      const dot = document.getElementById('dot-' + i);
+      if (dot){
+        if (i < this.currentPinInput.length) dot.style.background = '#000';
+        else dot.style.background = '#fff';
+      }
+    }
+  },
+  async verifyPin(){
+    const pin = this.currentPinInput;
+    if (pin.length < 6) return;
+    const correctHash = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (hashHex === correctHash){
+      sessionStorage.setItem('sadiyah_auth', 'true');
+      document.getElementById('modal-pin').classList.add('hidden');
+      this.showToast('PIN benar, akses diberikan.', 'success');
+    } else {
+      this.showToast('PIN salah! Coba lagi.', 'error');
+      this.currentPinInput = '';
+      this.updatePinDots();
+    }
+  },
+
+  refreshDashboard(){
+    runServer('getInitialData', [], (data) => { DB = data; this.renderStats(); this.renderDarsGrid(); });
+  },
+
+  showDarsForm(darsId){
+    document.getElementById('dars-form-id').value = darsId || '';
+    if (darsId){
+      const d = DB.darsList.find(x => x.id === darsId);
+      document.getElementById('dars-form-title').textContent = 'Edit Dars';
+      document.getElementById('dars-form-kitab').value = d.kitab;
+      document.getElementById('dars-form-bab').value = d.bab;
+      document.getElementById('dars-form-judul').value = d.judul;
+      document.getElementById('dars-form-notion').value = d.notionLink || '';
+    } else {
+      document.getElementById('dars-form-title').textContent = 'Dars Baru';
+      ['dars-form-kitab','dars-form-bab','dars-form-judul','dars-form-notion'].forEach(id => document.getElementById(id).value = '');
+    }
+    this.switchView('view-dars-form');
+  },
+
+  saveDarsForm(btn){
+    const id = document.getElementById('dars-form-id').value;
+    const obj = {
+      kitab: document.getElementById('dars-form-kitab').value.trim(),
+      bab: document.getElementById('dars-form-bab').value.trim(),
+      judul: document.getElementById('dars-form-judul').value.trim(),
+      notionLink: document.getElementById('dars-form-notion').value.trim()
+    };
+    if (!obj.kitab || !obj.bab || !obj.judul){ this.showToast('Kitab, Bab, dan Judul wajib diisi.', 'error'); return; }
+    if (!this.lock(btn)) return;
+
+    const done = () => { this.unlock(btn); this.showKitabList(); this.refreshDashboard(); };
+    const onErr = (err) => { this.unlock(btn); this.showToast('Gagal menyimpan: ' + (err && err.message ? err.message : err), 'error'); };
+
+    if (id){
+      obj.id = id;
+      runServer('updateDarsInfo', [obj], () => { this.showToast('Dars diperbarui.', 'success'); done(); }, onErr);
+    } else {
+      runServer('createDars', [obj], () => { this.showToast('Dars baru ditambahkan.', 'success'); done(); }, onErr);
+    }
+  },
+
+  showConfirm(title, message, confirmLabel, isDanger, onConfirm){
+    document.getElementById('confirm-modal-title').textContent = title || 'Konfirmasi';
+    document.getElementById('confirm-modal-msg').textContent = message;
+    const btn = document.getElementById('confirm-modal-action-btn');
+    btn.textContent = confirmLabel || 'YA, LANJUTKAN';
+    btn.className = 'neo-button flex-1 py-2.5 text-xs ' + (isDanger ? 'bg-neo-red' : 'bg-neo-green');
+    btn.onclick = () => {
+      this.closeModal('modal-confirm');
+      if (typeof onConfirm === 'function') onConfirm();
+    };
+    this.openModal('modal-confirm');
+  },
+
+  confirmDeleteDars(darsId){
+    const d = DB.darsList.find(x => x.id === darsId);
+    this.showConfirm(
+      'Hapus Dars?',
+      'Hapus dars "' + (d ? d.judul : '') + '" beserta seluruh soal di dalamnya? Tindakan ini tidak dapat dibatalkan.',
+      'HAPUS DARS', true,
+      () => {
+        runServer('deleteDars', [darsId], () => {
+          this.showToast('Dars dihapus.', 'success');
+          this.refreshDashboard();
+        });
+      }
+    );
+  },
+
+  openManageCards(darsId){
+    currentDarsId = darsId;
+    const d = DB.darsList.find(x => x.id === darsId);
+    document.getElementById('manage-title').textContent = 'Kelola Soal — ' + d.judul;
+    document.getElementById('manage-list-view').classList.remove('hidden');
+    document.getElementById('manage-form-view').classList.add('hidden');
+    this.switchView('view-manage');
+    document.getElementById('cards-list').innerHTML = '<div class="skel h-14"></div><div class="skel h-14"></div><div class="skel h-14"></div>';
+    this.loadCardsList();
+  },
+
+  loadCardsList(){
+    runServer('getDarsCards', [currentDarsId], (cards) => {
+      currentCards = cards;
+      this.renderCardsList();
+    });
+  },
+
+  typeIcon(type){ return { pg:'fa-list-check', isian:'fa-pen', flashcard:'fa-layer-group' }[type] || 'fa-question'; },
+  typeLabel(type){ return { pg:'PG', isian:'Isian', flashcard:'Flashcard' }[type] || type; },
+
+  renderCardsList(){
+    const list = document.getElementById('cards-list');
+    const empty = document.getElementById('cards-empty');
+    if (!currentCards.length){ list.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    list.innerHTML = currentCards.map((c, idx) => `
+      <div class="neo-box p-3 flex items-center gap-3 list-item-enter" style="animation-delay:${Math.min(idx*30,240)}ms">
+        <span class="type-badge bg-white shrink-0"><i class="fas ${this.typeIcon(c.type)}"></i> ${this.typeLabel(c.type)}</span>
+        <p class="text-sm font-semibold flex-1 truncate">${this.esc(c.question)}</p>
+        ${c.isDue ? '<span class="w-2.5 h-2.5 rounded-full bg-neo-red shrink-0" title="Jatuh tempo"></span>' : ''}
+        <button onclick="app.openCardForm('${c.id}')" class="text-black/40 hover:text-black shrink-0"><i class="fas fa-pen text-xs"></i></button>
+        <button onclick="app.deleteCardConfirmed('${c.id}')" class="text-black/40 hover:text-[var(--color-danger)] shrink-0"><i class="fas fa-trash text-xs"></i></button>
+      </div>`).join('');
+  },
+
+  openCardForm(cardId){
+    document.getElementById('manage-list-view').classList.add('hidden');
+    document.getElementById('manage-form-view').classList.remove('hidden');
+    document.getElementById('card-form-id').value = cardId || '';
+
+    if (cardId){
+      const c = currentCards.find(x => x.id === cardId);
+      document.getElementById('card-form-type').value = c.type;
+      document.getElementById('card-form-question').value = c.question;
+      if (c.type === 'flashcard') document.getElementById('card-form-answer-fc').value = c.answer;
+      if (c.type === 'isian') document.getElementById('card-form-answer-isian').value = c.answer;
+      if (c.type === 'pg'){
+        (c.options||[]).forEach((opt,i) => {
+          const inp = document.querySelector('.pg-opt-input[data-idx="'+i+'"]');
+          if (inp) inp.value = opt;
+        });
+        const radio = document.querySelector('input[name="pg-correct"][value="'+c.answer+'"]');
+        if (radio) radio.checked = true;
+      }
+    } else {
+      document.getElementById('card-form-type').value = 'flashcard';
+      document.getElementById('card-form-question').value = '';
+      document.getElementById('card-form-answer-fc').value = '';
+      document.getElementById('card-form-answer-isian').value = '';
+      document.querySelectorAll('.pg-opt-input').forEach(i => i.value = '');
+      document.querySelector('input[name="pg-correct"][value="0"]').checked = true;
+    }
+    this.onCardTypeChange();
+  },
+
+  closeCardForm(){
+    document.getElementById('manage-form-view').classList.add('hidden');
+    document.getElementById('manage-list-view').classList.remove('hidden');
+  },
+
+  onCardTypeChange(){
+    const t = document.getElementById('card-form-type').value;
+    document.getElementById('fields-flashcard').classList.toggle('hidden', t !== 'flashcard');
+    document.getElementById('fields-isian').classList.toggle('hidden', t !== 'isian');
+    document.getElementById('fields-pg').classList.toggle('hidden', t !== 'pg');
+  },
+
+  saveCardForm(btn){
+    const id = document.getElementById('card-form-id').value;
+    const type = document.getElementById('card-form-type').value;
+    const question = document.getElementById('card-form-question').value.trim();
+    if (!question){ this.showToast('Pertanyaan wajib diisi.', 'error'); return; }
+
+    let answer, options = null;
+    if (type === 'flashcard'){
+      answer = document.getElementById('card-form-answer-fc').value.trim();
+      if (!answer){ this.showToast('Jawaban wajib diisi.', 'error'); return; }
+    } else if (type === 'isian'){
+      answer = document.getElementById('card-form-answer-isian').value.trim();
+      if (!answer){ this.showToast('Kunci jawaban wajib diisi.', 'error'); return; }
+    } else {
+      options = Array.from(document.querySelectorAll('.pg-opt-input')).map(i => i.value.trim());
+      if (options.some(o => !o)){ this.showToast('Semua 4 opsi wajib diisi.', 'error'); return; }
+      answer = document.querySelector('input[name="pg-correct"]:checked').value;
+    }
+    if (!this.lock(btn)) return;
+
+    const cardObj = { id: id || undefined, type, question, answer, options };
+    const fn = id ? 'updateCard' : 'saveNewCard';
+    runServer(fn, [currentDarsId, cardObj], () => {
+      this.unlock(btn);
+      this.showToast(id ? 'Soal diperbarui.' : 'Soal ditambahkan.', 'success');
+      this.closeCardForm();
+      this.loadCardsList();
+      this.refreshDashboard();
+    }, (err) => { this.unlock(btn); this.showToast('Gagal menyimpan soal: ' + (err && err.message ? err.message : err), 'error'); });
+  },
+
+  deleteCardConfirmed(cardId){
+    this.showConfirm(
+      'Hapus Soal?', 'Soal ini akan dihapus permanen dari dars.', 'HAPUS SOAL', true,
+      () => {
+        runServer('deleteCard', [currentDarsId, cardId], () => {
+          this.showToast('Soal dihapus.', 'success');
+          this.loadCardsList();
+          this.refreshDashboard();
+        });
+      }
+    );
+  },
+
+  downloadCSVTemplate(){
+    const csv = 'Type,Question,Answer,Options(pg only, pisahkan pakai |)\n' +
+      'flashcard,Apa itu air musta\'mal?,Air sisa yang sudah dipakai bersuci wajib,\n' +
+      'isian,Sebutkan salah satu rukun wudhu!,Membasuh wajah,\n' +
+      'pg,Berikut yang termasuk rukun wudhu:,Niat,Niat|Memakai wangi-wangian|Berkumur 3x|Membaca doa qunut\n';
+    const blob = new Blob([csv], { type:'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'template_soal.csv'; a.click();
+    URL.revokeObjectURL(url);
+    this.showToast('Template CSV terunduh.', 'info');
+  },
+
+  parseCSVLine(line){
+    let result=[], current='', inQuotes=false;
+    for (let i=0;i<line.length;i++){
+      const ch = line[i];
+      if (ch === '"') inQuotes = !inQuotes;
+      else if (ch === ',' && !inQuotes){ result.push(current.trim()); current=''; }
+      else current += ch;
+    }
+    result.push(current.trim());
+    return result;
+  },
+
+  handleCSVUpload(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const btnText = document.getElementById('csv-btn-text');
+    const original = btnText.textContent;
+    btnText.textContent = 'Memproses...';
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim().length);
+      if (lines.length <= 1){ this.showToast('CSV kosong.', 'error'); btnText.textContent = original; e.target.value=''; return; }
+
+      const newCards = [];
+      const errors = [];
+      for (let i=1;i<lines.length;i++){
+        const rowNum = i + 1;
+        const cols = this.parseCSVLine(lines[i]);
+        if (cols.length < 3 || !cols[1]){ errors.push('Baris ' + rowNum + ': kolom tidak lengkap'); continue; }
+        const type = cols[0].toLowerCase().trim();
+        const question = cols[1], answerRaw = cols[2], optionsRaw = cols[3] || '';
+        if (type === 'pg'){
+          const options = optionsRaw.split('|').map(s => s.trim()).filter(Boolean);
+          const correctIdx = options.findIndex(o => o.toLowerCase() === answerRaw.toLowerCase());
+          if (options.length < 2){ errors.push('Baris ' + rowNum + ': opsi PG kurang dari 2'); continue; }
+          if (correctIdx === -1){ errors.push('Baris ' + rowNum + ': jawaban PG tidak cocok dengan opsi manapun'); continue; }
+          newCards.push({ id: Date.now().toString(36)+i, type:'pg', question, answer: correctIdx.toString(), options });
+        } else if (type === 'isian' || type === 'flashcard'){
+          newCards.push({ id: Date.now().toString(36)+i, type, question, answer: answerRaw, options: null });
+        } else {
+          errors.push('Baris ' + rowNum + ': tipe "' + cols[0] + '" tidak dikenal');
+        }
+      }
+
+      if (!newCards.length){
+        this.showToast('Tidak ada baris valid untuk diimpor.', 'error');
+        btnText.textContent = original; e.target.value=''; return;
+      }
+
+      runServer('saveBulkCards', [currentDarsId, newCards], () => {
+        const msg = newCards.length + ' soal berhasil diimpor!';
+        this.showToast(msg, errors.length ? 'warning' : 'success');
+        btnText.textContent = original;
+        e.target.value = '';
+        this.loadCardsList();
+        this.refreshDashboard();
+      }, (err) => { btnText.textContent = original; e.target.value=''; this.showToast('Gagal impor: ' + err, 'error'); });
+    };
+    reader.readAsText(file, 'UTF-8');
+  },
+
+  openInterleaveSession(btn){
+    const allIds = DB.darsList.map(d => d.id);
+    if (!allIds.length){ this.showToast('Belum ada dars untuk dilatih.', 'warning'); return; }
+    this.startSession(allIds, 'interleave', btn);
+  },
+
+  startSession(darsIds, mode, btn){
+    if (btn && !this.lock(btn)) return;
+    const unlockBtn = () => { if (btn) this.unlock(btn); };
+    runServer('getQuizQueue', [darsIds, mode, true], (dueQueue) => {
+      if (dueQueue.length){
+        unlockBtn();
+        this.beginQuiz(dueQueue, mode, darsIds);
+      } else {
+        runServer('getQuizQueue', [darsIds, mode, false], (allQueue) => {
+          unlockBtn();
+          if (!allQueue.length){ this.showToast('Belum ada soal di dars ini.', 'warning'); return; }
+          this.showToast('Tidak ada yang jatuh tempo — latihan bebas semua soal.', 'info');
+          this.beginQuiz(allQueue, mode, darsIds);
+        }, () => { unlockBtn(); });
+      }
+    }, () => { unlockBtn(); });
+  },
+
+  beginQuiz(queue, mode, darsIds){
+    quiz = { queue, index:0, score:0, mode, answered:false, selected:null, darsIds: darsIds || [] };
+    this.switchView('view-quiz');
+    this.renderQuizQuestion();
+  },
+
+  renderQuizQuestion(){
+    const card = quiz.queue[quiz.index];
+    quiz.answered = false;
+    document.getElementById('quiz-dars-label').textContent = card.darsLabel;
+    document.getElementById('quiz-progress-text').textContent = (quiz.index+1) + ' / ' + quiz.queue.length;
+    document.getElementById('quiz-score-text').textContent = 'Skor: ' + quiz.score;
+    document.getElementById('quiz-progress-fill').style.width = Math.round((quiz.index/quiz.queue.length)*100) + '%';
+
+    const cardTools = `
+      <div class="flex items-center justify-between mb-3 text-xs font-bold border-b-2 border-black pb-2">
+        <span class="opacity-70">Tipe: ${this.typeLabel(card.type)}</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="app.openQuickEditCardModal()" class="neo-button px-2.5 py-1 text-[11px] bg-neo-yellow"><i class="fas fa-pen mr-1"></i> Edit</button>
+          <button type="button" onclick="app.confirmDeleteCurrentQuizCard()" class="neo-button px-2.5 py-1 text-[11px] bg-neo-red text-white"><i class="fas fa-trash mr-1"></i> Hapus</button>
+        </div>
+      </div>`;
+
+    const body = document.getElementById('quiz-body');
+    if (card.type === 'pg'){
+      body.innerHTML = cardTools + `
+        <p class="font-black text-lg mb-4">${this.esc(card.question)}</p>
+        <div class="flex flex-col gap-2" id="pg-options">
+          ${card.options.map((opt,i) => `<button class="pg-option" onclick="app.answerPG(${i})">${this.esc(opt)}</button>`).join('')}
+        </div>
+        <div id="quiz-next-wrap" class="mt-4 hidden"><button class="neo-button w-full py-3 bg-neo-green" onclick="app.nextQuestion()">LANJUT <i class="fas fa-arrow-right ml-1"></i></button></div>`;
+    } else if (card.type === 'isian'){
+      body.innerHTML = cardTools + `
+        <p class="font-black text-lg mb-4">${this.esc(card.question)}</p>
+        <textarea class="neo-textarea" id="isian-input" rows="2" placeholder="Ketik jawabanmu..."></textarea>
+        <button class="neo-button w-full py-2.5 mt-3 bg-neo-blue" id="isian-check-btn" onclick="app.revealIsian()">CEK JAWABAN</button>
+        <div id="isian-reveal" class="hidden mt-3">
+          <div class="neo-box p-3 bg-neo-green"><p class="text-[10px] font-black uppercase opacity-70">Kunci Jawaban</p><p class="font-bold text-sm mt-1">${this.esc(card.answer)}</p></div>
+          <div class="flex gap-2 mt-2">
+            <button class="neo-button flex-1 py-2.5 bg-neo-red" onclick="app.gradeQuality(2)">❌ BELUM TEPAT</button>
+            <button class="neo-button flex-1 py-2.5 bg-neo-green" onclick="app.gradeQuality(5)">✅ TEPAT</button>
+          </div>
+        </div>
+        <div id="quiz-next-wrap" class="mt-4 hidden"><button class="neo-button w-full py-3 bg-neo-green" onclick="app.nextQuestion()">LANJUT <i class="fas fa-arrow-right ml-1"></i></button></div>`;
+    } else {
+      body.innerHTML = cardTools + `
+        <div class="flip-card" id="flip-card" onclick="app.flipCard()">
+          <div class="flip-card-inner">
+            <div class="flip-face flip-front">${this.esc(card.question)}</div>
+            <div class="flip-face flip-back">${this.esc(card.answer)}</div>
+          </div>
+        </div>
+        <p class="text-center text-xs font-bold opacity-50 mt-2" id="flip-hint">Ketuk kartu buat lihat jawaban</p>
+        <div class="grid grid-cols-3 gap-2 mt-4 hidden" id="fc-grade-wrap">
+          <button class="neo-button py-2.5 bg-neo-red text-[11px]" onclick="app.gradeQuality(2)">😵 LUPA</button>
+          <button class="neo-button py-2.5 bg-neo-yellow text-[11px]" onclick="app.gradeQuality(3)">🤔 RAGU</button>
+          <button class="neo-button py-2.5 bg-neo-green text-[11px]" onclick="app.gradeQuality(5)">😄 INGAT</button>
+        </div>
+        <div id="quiz-next-wrap" class="mt-4 hidden"><button class="neo-button w-full py-3 bg-neo-green" onclick="app.nextQuestion()">LANJUT <i class="fas fa-arrow-right ml-1"></i></button></div>`;
+    }
+  },
+
+  answerPG(idx){
+    if (quiz.answered) return;
+    quiz.answered = true;
+    const card = quiz.queue[quiz.index];
+    const correctIdx = parseInt(card.answer);
+    document.querySelectorAll('#pg-options .pg-option').forEach((btn,i) => {
+      btn.disabled = true;
+      if (i === correctIdx) btn.classList.add('correct');
+      else if (i === idx) btn.classList.add('wrong');
+    });
+    const quality = idx === correctIdx ? 5 : 2;
+    this.recordAndScore(quality);
+    document.getElementById('quiz-next-wrap').classList.remove('hidden');
+  },
+
+  revealIsian(){
+    document.getElementById('isian-reveal').classList.remove('hidden');
+    document.getElementById('isian-check-btn').classList.add('hidden');
+  },
+
+  flipCard(){
+    const el = document.getElementById('flip-card');
+    el.classList.toggle('flipped');
+    document.getElementById('flip-hint').classList.add('hidden');
+    document.getElementById('fc-grade-wrap').classList.remove('hidden');
+  },
+
+  gradeQuality(quality){
+    if (quiz.answered) return;
+    quiz.answered = true;
+    this.recordAndScore(quality);
+    document.getElementById('quiz-next-wrap').classList.remove('hidden');
+    const gradeWrap = document.getElementById('fc-grade-wrap');
+    if (gradeWrap) gradeWrap.classList.add('hidden');
+    const isianReveal = document.getElementById('isian-reveal');
+    if (isianReveal) isianReveal.querySelectorAll('button').forEach(b => b.disabled = true);
+  },
+
+  recordAndScore(quality){
+    const card = quiz.queue[quiz.index];
+    if (quality >= 3) quiz.score++;
+    document.getElementById('quiz-score-text').textContent = 'Skor: ' + quiz.score;
+    runServer('recordAttempt', [card.darsId, card.id, quality, quiz.mode]);
+  },
+
+  nextQuestion(){
+    quiz.index++;
+    if (quiz.index >= quiz.queue.length) this.finishSession();
+    else this.renderQuizQuestion();
+  },
+
+  closeQuizConfirm(){
+    if (quiz.index < quiz.queue.length - 1 || !quiz.answered){
+      this.showConfirm(
+        'Keluar dari Sesi?',
+        'Progress sesi tersimpan otomatis.',
+        'KELUAR SESI',
+        true,
+        () => {
+          this.showKitabList();
+          this.refreshDashboard();
+        }
+      );
+      return;
+    }
+    this.showKitabList();
+    this.refreshDashboard();
+  },
+
+  finishSession(){
+    const total = quiz.queue.length;
+    const pct = total ? Math.round((quiz.score/total)*100) : 0;
+    document.getElementById('summary-emoji').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📚';
+    document.getElementById('summary-score').textContent = quiz.score + ' / ' + total;
+    document.getElementById('summary-accuracy').textContent = pct + '% benar';
+    this.openModal('modal-summary');
+    this.refreshDashboard();
+  },
+
+  openSettings(){ this.openModal('modal-settings'); },
+
+  saveSettingsForm(btn){
+    const name = document.getElementById('settings-name').value.trim();
+    const dateVal = document.getElementById('settings-date').value;
+    if (!name || !dateVal){ this.showToast('Nama dan tanggal wajib diisi.', 'error'); return; }
+    if (!this.lock(btn)) return;
+    const iso = new Date(dateVal).toISOString();
+    runServer('saveSettings', [name, iso], () => {
+      this.unlock(btn);
+      DB.settings.targetName = name; DB.settings.targetDate = iso;
+      this.showToast('Pengaturan disimpan.', 'success');
+      this.closeModal('modal-settings');
+      this.startCountdown();
+    }, (err) => { this.unlock(btn); this.showToast('Gagal menyimpan pengaturan.', 'error'); });
+  },
+
+  openModal(id){ document.getElementById(id).classList.remove('hidden'); },
+  closeModal(id){ document.getElementById(id).classList.add('hidden'); },
+
+  tryOpenDarsDirectly(darsId){
+    if (!darsId) return;
+    var found = DB.darsList.find(function(d){ return d.id === darsId; });
+    if (found){
+      this.showToast('Membuka sesi: ' + found.judul, 'info');
+      this.startSession([found.id], 'per_dars');
+    }
+  },
+
+  openQuickEditCardModal(){
+    if (!quiz.queue || !quiz.queue[quiz.index]) return;
+    var card = quiz.queue[quiz.index];
+    document.getElementById('quick-edit-id').value = card.id;
+    document.getElementById('quick-edit-type').value = card.type;
+    document.getElementById('quick-edit-question').value = card.question;
+
+    var wrapAnswer = document.getElementById('quick-edit-wrap-answer');
+    var wrapPg = document.getElementById('quick-edit-wrap-pg');
+
+    if (card.type === 'pg'){
+      wrapAnswer.classList.add('hidden');
+      wrapPg.classList.remove('hidden');
+      var opts = card.options || [];
+      for (var i = 0; i < 4; i++){
+        var input = document.querySelector('.quick-pg-opt[data-idx="' + i + '"]');
+        if (input) input.value = opts[i] || '';
+      }
+      var radio = document.querySelector('input[name="quick-pg-correct"][value="' + card.answer + '"]');
+      if (radio) radio.checked = true;
+    } else {
+      wrapAnswer.classList.remove('hidden');
+      wrapPg.classList.add('hidden');
+      document.getElementById('quick-edit-answer').value = card.answer;
+    }
+    this.openModal('modal-quick-edit-card');
+  },
+
+  saveQuickEditCard(btn){
+    if (!quiz.queue || !quiz.queue[quiz.index]) return;
+    var currentCard = quiz.queue[quiz.index];
+    var id = document.getElementById('quick-edit-id').value;
+    var type = document.getElementById('quick-edit-type').value;
+    var question = document.getElementById('quick-edit-question').value.trim();
+    if (!question){ this.showToast('Pertanyaan tidak boleh kosong.', 'error'); return; }
+
+    var answer = '';
+    var options = null;
+    if (type === 'pg'){
+      options = Array.from(document.querySelectorAll('.quick-pg-opt')).map(function(i){ return i.value.trim(); });
+      var checkedRadio = document.querySelector('input[name="quick-pg-correct"]:checked');
+      answer = checkedRadio ? checkedRadio.value : '0';
+    } else {
+      answer = document.getElementById('quick-edit-answer').value.trim();
+    }
+
+    if (!this.lock(btn)) return;
+
+    var updatedCard = { id: id, type: type, question: question, answer: answer, options: options };
+
+    runServer('updateCard', [currentCard.darsId, updatedCard], () => {
+      this.unlock(btn);
+      this.showToast('Kartu diperbarui.', 'success');
+      currentCard.question = question;
+      currentCard.answer = answer;
+      currentCard.options = options;
+      this.closeModal('modal-quick-edit-card');
+      this.renderQuizQuestion();
+    }, (err) => {
+      this.unlock(btn);
+      this.showToast('Gagal update.', 'error');
+    });
+  },
+
+  confirmDeleteCurrentQuizCard(){
+    if (!quiz.queue || !quiz.queue[quiz.index]) return;
+    var card = quiz.queue[quiz.index];
+    this.showConfirm(
+      'Hapus Kartu Ini?',
+      'Kartu akan dihapus.',
+      'HAPUS',
+      true,
+      () => {
+        runServer('deleteCard', [card.darsId, card.id], () => {
+          this.showToast('Kartu dihapus.', 'success');
+          quiz.queue.splice(quiz.index, 1);
+          if (quiz.index >= quiz.queue.length){
+            if (quiz.queue.length > 0){
+              quiz.index = 0;
+              this.renderQuizQuestion();
+            } else {
+              this.finishSession();
+            }
+          } else {
+            this.renderQuizQuestion();
+          }
+          this.refreshDashboard();
+        });
+      }
+    );
+  },
+
+  showToast(message, type){
+    type = type || 'info';
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const icons = { success:'fa-check', error:'fa-times', info:'fa-info', warning:'fa-exclamation' };
+    const labels = { success:'Berhasil', error:'Error', info:'Info', warning:'Perhatian' };
+    toast.className = 'toast toast-' + type;
+    toast.innerHTML = `<div class="toast-icon"><i class="fas ${icons[type]}"></i></div>
+      <div class="flex flex-col min-w-0"><span class="text-[9px] font-black uppercase tracking-wide opacity-50">${labels[type]}</span><span class="text-sm font-bold leading-tight">${this.esc(message)}</span></div>`;
+    toast.addEventListener('click', () => this.dismissToast(toast));
+    container.appendChild(toast);
+    setTimeout(() => this.dismissToast(toast), 3000);
+  },
+  dismissToast(toast){
+    if (!toast.parentNode) return;
+    toast.classList.add('toast-exit');
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 200);
+  },
+
+  esc(str){
+    if (str === null || str === undefined) return '';
+    return str.toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./sw.js').catch(function(err) {
+        console.log('SW registration failed: ', err);
+      });
+    });
+  }
+</script>
+</body>
+</html>
